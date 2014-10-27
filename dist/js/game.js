@@ -72,23 +72,28 @@ Menu.prototype = {
 
   },
   create: function() {
-    var style = { font: '65px Arial', fill: '#ffffff', align: 'center'};
-    this.sprite = this.game.add.sprite(this.game.world.centerX, 138, 'yeoman');
-    this.sprite.anchor.setTo(0.5, 0.5);
-
-    this.titleText = this.game.add.text(this.game.world.centerX, 300, '\'Allo, \'Allo!', style);
-    this.titleText.anchor.setTo(0.5, 0.5);
-
-    this.instructionsText = this.game.add.text(this.game.world.centerX, 400, 'Click anywhere to play "Click The Yeoman Logo"', { font: '16px Arial', fill: '#ffffff', align: 'center'});
-    this.instructionsText.anchor.setTo(0.5, 0.5);
-
-    this.sprite.angle = -20;
-    this.game.add.tween(this.sprite).to({angle: 20}, 1000, Phaser.Easing.Linear.NONE, true, 0, 1000, true);
+    this.bg = this.game.add.sprite(0, 0, "menuBg");
+	 this.playBtn = this.game.add.sprite(184, 246, "menuPlayBtn");
+	 this.playBtn.inputEnabled = true;
+	 this.playBtn.events.onInputUp.add(this.playBtnInputUpHandler, this);
+	 this.playBtn.events.onInputOver.add(this.playBtnInputOverHandler, this);
+	 this.playBtn.events.onInputOut.add(this.playBtnInputOutHandler, this);
   },
+	playBtnInputUpHandler: function(button, pointer) {
+		this.playBtn.events.onInputUp.remove(this.playBtnInputUpHandler);
+		this.playBtn.events.onInputOver.remove(this.playBtnInputOverHandler);
+		this.playBtn.events.onInputOut.remove(this.playBtnInputOutHandler);
+		this.game.state.start("play");
+	},
+	playBtnInputOverHandler: function(button, pointer) {
+		console.log("over");
+		this.game.add.tween(this.playBtn).to({y:246 - 4}, 200, Phaser.Easing.Cubic.Out, true);
+	},
+	playBtnInputOutHandler: function(button, pointer) {
+		this.game.add.tween(this.playBtn).to({y:246}, 200, Phaser.Easing.Cubic.In, true);
+	},
   update: function() {
-    if(this.game.input.activePointer.justPressed()) {
-      this.game.state.start('play');
-    }
+
   }
 };
 
@@ -133,10 +138,11 @@ Preload.prototype = {
   preload: function() {
     this.asset = this.add.sprite(this.width/2,this.height/2, 'preloader');
     this.asset.anchor.setTo(0.5, 0.5);
-
     this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
     this.load.setPreloadSprite(this.asset);
-    this.load.image('yeoman', 'assets/yeoman-logo.png');
+
+    this.load.image("menuBg", "assets/mainMenuBg.jpg");
+    this.load.image("menuPlayBtn", "assets/playBtn.png");
 
   },
   create: function() {
