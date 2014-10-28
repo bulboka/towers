@@ -1,35 +1,28 @@
-
 'use strict';
-function Menu() {}
+var MainMenuButton = require('../prefabs/mainMenuButton');
+
+function Menu() {
+}
 
 Menu.prototype = {
-  preload: function() {
+	preload: function () {
 
-  },
-  create: function() {
-    this.bg = this.game.add.sprite(0, 0, "menuBg");
-	 this.playBtn = this.game.add.sprite(184, 246, "menuPlayBtn");
-	 this.playBtn.inputEnabled = true;
-	 this.playBtn.events.onInputUp.add(this.playBtnInputUpHandler, this);
-	 this.playBtn.events.onInputOver.add(this.playBtnInputOverHandler, this);
-	 this.playBtn.events.onInputOut.add(this.playBtnInputOutHandler, this);
-  },
-	playBtnInputUpHandler: function(button, pointer) {
-		this.playBtn.events.onInputUp.remove(this.playBtnInputUpHandler);
-		this.playBtn.events.onInputOver.remove(this.playBtnInputOverHandler);
-		this.playBtn.events.onInputOut.remove(this.playBtnInputOutHandler);
+	},
+	create: function () {
+		this.bg = this.game.add.sprite(0, 0, "menuBg");
+		this.playBtn = new MainMenuButton(this.game, 184, 246, "menuPlayBtn");
+		this.playBtn.events.onInputUp.add(this.playBtnInputUpHandler, this);
+		this.game.add.existing(this.playBtn);
+	},
+	playBtnInputUpHandler: function (button, pointer) {
 		this.game.state.start("play");
 	},
-	playBtnInputOverHandler: function(button, pointer) {
-		console.log("over");
-		this.game.add.tween(this.playBtn).to({y:246 - 4}, 200, Phaser.Easing.Cubic.Out, true);
+	shutdown: function() {
+		this.playBtn.destroy();
 	},
-	playBtnInputOutHandler: function(button, pointer) {
-		this.game.add.tween(this.playBtn).to({y:246}, 200, Phaser.Easing.Cubic.In, true);
-	},
-  update: function() {
+	update: function () {
 
-  }
+	}
 };
 
 module.exports = Menu;

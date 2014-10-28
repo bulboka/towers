@@ -2,3 +2,4 @@ node_modules
 *.psd
 **/.idea/workspace.xml
 **/.idea/tasks.xml
+.idea/codeStyleSettings.xml

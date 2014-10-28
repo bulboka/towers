@@ -15,7 +15,40 @@ window.onload = function () {
 
   game.state.start('boot');
 };
-},{"./states/boot":2,"./states/gameover":3,"./states/menu":4,"./states/play":5,"./states/preload":6}],2:[function(require,module,exports){
+},{"./states/boot":3,"./states/gameover":4,"./states/menu":5,"./states/play":6,"./states/preload":7}],2:[function(require,module,exports){
+'use strict';
+
+var MainMenuButton = function (game, x, y, textureKey) {
+	Phaser.Sprite.call(this, game, x, y, textureKey);
+	this.inputEnabled = true;
+	var playBtnInputOverHandler = function () {
+		this.game.add.tween(this).to({y: 246 - 4}, 200, Phaser.Easing.Back.Out, true);
+	}
+	var playBtnInputOutHandler = function () {
+		this.game.add.tween(this).to({y: 246}, 200, Phaser.Easing.Cubic.In, true);
+	}
+	this.events.onInputOver.add(playBtnInputOverHandler, this);
+	this.events.onInputOut.add(playBtnInputOutHandler, this);
+};
+
+MainMenuButton.prototype = Object.create(Phaser.Sprite.prototype);
+MainMenuButton.prototype.constructor = MainMenuButton;
+
+MainMenuButton.prototype.update = function () {
+	// write your prefab's specific update code here
+
+};
+
+MainMenuButton.prototype.destroy = function () {
+	this.events.onInputUp.removeAll();
+	this.events.onInputOver.removeAll();
+	this.events.onInputOut.removeAll();
+	Phaser.Sprite.prototype.destroy.call(this);
+};
+
+module.exports = MainMenuButton;
+
+},{}],3:[function(require,module,exports){
 
 'use strict';
 
@@ -34,7 +67,7 @@ Boot.prototype = {
 
 module.exports = Boot;
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 
 'use strict';
 function GameOver() {}
@@ -62,71 +95,64 @@ GameOver.prototype = {
 };
 module.exports = GameOver;
 
-},{}],4:[function(require,module,exports){
-
+},{}],5:[function(require,module,exports){
 'use strict';
-function Menu() {}
+var MainMenuButton = require('../prefabs/mainMenuButton');
+
+function Menu() {
+}
 
 Menu.prototype = {
-  preload: function() {
+	preload: function () {
 
-  },
-  create: function() {
-    this.bg = this.game.add.sprite(0, 0, "menuBg");
-	 this.playBtn = this.game.add.sprite(184, 246, "menuPlayBtn");
-	 this.playBtn.inputEnabled = true;
-	 this.playBtn.events.onInputUp.add(this.playBtnInputUpHandler, this);
-	 this.playBtn.events.onInputOver.add(this.playBtnInputOverHandler, this);
-	 this.playBtn.events.onInputOut.add(this.playBtnInputOutHandler, this);
-  },
-	playBtnInputUpHandler: function(button, pointer) {
-		this.playBtn.events.onInputUp.remove(this.playBtnInputUpHandler);
-		this.playBtn.events.onInputOver.remove(this.playBtnInputOverHandler);
-		this.playBtn.events.onInputOut.remove(this.playBtnInputOutHandler);
+	},
+	create: function () {
+		this.bg = this.game.add.sprite(0, 0, "menuBg");
+		this.playBtn = new MainMenuButton(this.game, 184, 246, "menuPlayBtn");
+		this.playBtn.events.onInputUp.add(this.playBtnInputUpHandler, this);
+		this.game.add.existing(this.playBtn);
+	},
+	playBtnInputUpHandler: function (button, pointer) {
 		this.game.state.start("play");
 	},
-	playBtnInputOverHandler: function(button, pointer) {
-		console.log("over");
-		this.game.add.tween(this.playBtn).to({y:246 - 4}, 200, Phaser.Easing.Cubic.Out, true);
+	shutdown: function() {
+		this.playBtn.destroy();
 	},
-	playBtnInputOutHandler: function(button, pointer) {
-		this.game.add.tween(this.playBtn).to({y:246}, 200, Phaser.Easing.Cubic.In, true);
-	},
-  update: function() {
+	update: function () {
 
-  }
+	}
 };
 
 module.exports = Menu;
 
-},{}],5:[function(require,module,exports){
+},{"../prefabs/mainMenuButton":2}],6:[function(require,module,exports){
+'use strict';
+function Play() {
+}
+Play.prototype = {
+	create: function () {
+		this.game.physics.startSystem(Phaser.Physics.ARCADE);
+		this.sprite = this.game.add.sprite(this.game.width / 2, this.game.height / 2, 'yeoman');
+		this.sprite.inputEnabled = true;
 
-  'use strict';
-  function Play() {}
-  Play.prototype = {
-    create: function() {
-      this.game.physics.startSystem(Phaser.Physics.ARCADE);
-      this.sprite = this.game.add.sprite(this.game.width/2, this.game.height/2, 'yeoman');
-      this.sprite.inputEnabled = true;
-      
-      this.game.physics.arcade.enable(this.sprite);
-      this.sprite.body.collideWorldBounds = true;
-      this.sprite.body.bounce.setTo(1,1);
-      this.sprite.body.velocity.x = this.game.rnd.integerInRange(-500,500);
-      this.sprite.body.velocity.y = this.game.rnd.integerInRange(-500,500);
+		this.game.physics.arcade.enable(this.sprite);
+		this.sprite.body.collideWorldBounds = true;
+		this.sprite.body.bounce.setTo(1, 1);
+		this.sprite.body.velocity.x = this.game.rnd.integerInRange(-500, 500);
+		this.sprite.body.velocity.y = this.game.rnd.integerInRange(-500, 500);
 
-      this.sprite.events.onInputDown.add(this.clickListener, this);
-    },
-    update: function() {
+		this.sprite.events.onInputDown.add(this.clickListener, this);
+	},
+	update: function () {
 
-    },
-    clickListener: function() {
-      this.game.state.start('gameover');
-    }
-  };
-  
-  module.exports = Play;
-},{}],6:[function(require,module,exports){
+	},
+	clickListener: function () {
+		this.game.state.start('gameover');
+	}
+};
+
+module.exports = Play;
+},{}],7:[function(require,module,exports){
 
 'use strict';
 function Preload() {
